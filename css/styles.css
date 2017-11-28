@@ -9,11 +9,17 @@ canvas{
     max-height:100%;
     border: 2px solid brown;
     display: block;
-    background: url("../img/background.jpg") ;
+    background: url("../img/BG.jpg") ;
     background-size:cover;
 }
 .game-info{
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.game-info p{
+    font-size:12px;
 }
 .controls{
     width: 9em;
