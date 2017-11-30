@@ -93,10 +93,10 @@ const game = function () {
 				fruit.path.upDown = generateRandomBetween(0, 2)
 				fruit.path.leftRight = generateRandomBetween(0, 2)
 				fruit.path.distance = generateRandomBetween(50, canvas.width / 2)
-				fruit.path.speed =  generateRandomBetween(1, 6)/10
+				fruit.path.speed = generateRandomBetween(1, 6) / 10
 			}
 			let xShift = fruit.path.leftRight === 2 ? fruit.path.speed : fruit.path.leftRight === 1 ? 0 : -fruit.path.speed;
-			let yShift = fruit.path.upDown === 2 ? fruit.path.speed :  fruit.path.upDown === 1 ? 0 : -fruit.path.speed;
+			let yShift = fruit.path.upDown === 2 ? fruit.path.speed : fruit.path.upDown === 1 ? 0 : -fruit.path.speed;
 			fruit.x += xShift
 			fruit.y += yShift
 			ctx.drawImage(images['fish' + fruit.type].object, fruit.x - partLength / 4, fruit.y - partLength / 4,
@@ -120,11 +120,11 @@ const game = function () {
 		currentShark = currentShark ? currentShark : images.shark_left
 		const {width, height}=getImgDimensions(currentShark)
 		let x = currentShark.position.x
-		if (x === null || x < (0 - width-1) || x > canvas.width) {
+		if (x === null || x < (0 - width - 1) || x > canvas.width) {
 			let type = generateRandomBetween(0, 1)
 			currentShark = type ? images.shark_left : images.shark_right
 			currentShark.position.y = generateRandomBetween(0, canvas.height - height);
-			currentShark.position.x = currentShark.src === images.shark_left.src ? canvas.width : 0-width
+			currentShark.position.x = currentShark.src === images.shark_left.src ? canvas.width : 0 - width
 		} else {
 			currentShark.position.x = currentShark.src === images.shark_left.src ?
 				currentShark.position.x - 0.7 * speed : currentShark.position.x + 0.7 * speed
@@ -175,17 +175,17 @@ const game = function () {
 	function drawBarriers() {
 		if (!barriers.length) generateBarriers();
 		for (let barrier of barriers) {
-			if(barrier.type==='hedgehog'){
-				barrier.object=images.hedgehog.object
-			}else if(!barrier.object){
-				barrier.object=images.whirpool1.object;
-			}else{
-				if(barrier.countdown===15){
-					let frame = barrier.object.src[barrier.object.src.length-5]
-					barrier.object = frame==6?images.whirpool1.object:images['whirpool'+(parseInt(frame)+1)].object
+			if (barrier.type === 'hedgehog') {
+				barrier.object = images.hedgehog.object
+			} else if (!barrier.object) {
+				barrier.object = images.whirpool1.object;
+			} else {
+				if (barrier.countdown === 15) {
+					let frame = barrier.object.src[barrier.object.src.length - 5]
+					barrier.object = frame == 6 ? images.whirpool1.object : images['whirpool' + (parseInt(frame) + 1)].object
 				}
 				barrier.countdown--
-				barrier.countdown=barrier.countdown===0?15:barrier.countdown
+				barrier.countdown = barrier.countdown === 0 ? 15 : barrier.countdown
 			}
 			ctx.drawImage(barrier.object, barrier.x, barrier.y, barrier.width, barrier.width);
 		}
@@ -207,7 +207,7 @@ const game = function () {
 		let eatenIndex
 		let isEaten = fruits.some((fruit, index) => {
 			eatenIndex = index
-			return isInsideElement({x, y},fruit )||isInsideElement(fruit,{x, y} )
+			return isInsideElement({x, y}, fruit) || isInsideElement(fruit, {x, y})
 		})
 		if (isEaten) {
 			fruits.splice(eatenIndex, 1)
@@ -233,8 +233,8 @@ const game = function () {
 				path = {
 					upDown: generateRandomBetween(0, 2),
 					leftRight: generateRandomBetween(0, 2),
-					distance: generateRandomBetween(partLength*3, partLength*6),
-					speed: generateRandomBetween(1, 6)/10
+					distance: generateRandomBetween(partLength * 3, partLength * 6),
+					speed: generateRandomBetween(1, 6) / 10
 				}
 			} while (snake.some(part => isInsideElement({x: fruitX, y: fruitY}, part)))
 			fruits.push({x: fruitX, y: fruitY, type, path})
@@ -254,13 +254,17 @@ const game = function () {
 			let type
 			let width
 			do {
-				type = (i+1)===barriersMax?'whirpool':'hedgehog'
-				width = type==="whirpool"?partLength * 7:partLength*4
+				type = (i + 1) === barriersMax ? 'whirpool' : 'hedgehog'
+				width = type === "whirpool" ? partLength * 7 : partLength * 4
 				barrierX = Math.round(generateRandomBetween(0, (canvas.width - width)) / partLength) * partLength
 				barrierY = Math.round(generateRandomBetween(0,
-						(canvas.height - (type==="whirpool"?(canvas.height/3+width):width))) / partLength) * partLength
-			} while (barriers.some(barrier => isInsideElement( barrier,{x: barrierX, y: barrierY,width})||isInsideElement( {x: barrierX, y: barrierY,width},barrier)))
-			barriers.push({x: barrierX, y: barrierY, type, width,countdown:15})
+							(canvas.height - (type === "whirpool" ? (canvas.height / 3 + width) : width))) / partLength) * partLength
+			} while (barriers.some(barrier => isInsideElement(barrier, {
+				x: barrierX,
+				y: barrierY,
+				width
+			}) || isInsideElement({x: barrierX, y: barrierY, width}, barrier)))
+			barriers.push({x: barrierX, y: barrierY, type, width, countdown: 15})
 		}
 	}
 
@@ -281,7 +285,7 @@ const game = function () {
 		}
 		if (!canvas.getContext) return alert("your browser is not supported,sorry");
 		ctx = canvas.getContext('2d');
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < 13; i++) {
 			snake.unshift({x: i * partLength, y: 0, direction});
 		}
 		gameLoop = setInterval(draw, frameRate);
@@ -351,14 +355,20 @@ const game = function () {
 		init();
 	}
 
-	function recalculateDirectionsForParts() {
-		for (let i = snake.length - 1; i > 0; i--) {
-			snake[i].direction = snake[i - 1].direction
+	function recalculateDirectionsForPart(index) {
+		let part = snake[index]
+		let isTimeToRecalculate = (part.x % partLength === 0) && (part.y % partLength === 0)
+		if (isTimeToRecalculate) {
+			if(part===snake[0]){
+				part.direction = direction;
+			}else{
+				part.direction = snake[index - 1].direction
+			}
 		}
 	}
 
 	function moveSnake() {
-		let isTimeToRecalculate = (snake[0].x % partLength === 0) && (snake[0].y % partLength === 0)
+
 		if (isFruitEaten(snake[0].x, snake[0].y)) {
 			let newElem = Object.assign({}, snake[snake.length - 1])
 			switch (newElem.direction) {
@@ -378,12 +388,9 @@ const game = function () {
 			snake.push(newElem)
 			changeScore(++score)
 		}
-		if (isTimeToRecalculate) {
-			recalculateDirectionsForParts()
-			snake[0].direction = direction;
-		}
 		for (let i = snake.length - 1; i >= 0; i--) {
 			let part = snake[i]
+			recalculateDirectionsForPart(i)
 			switch (part.direction) {
 				case 'right':
 					part.x += speed
@@ -398,6 +405,16 @@ const game = function () {
 					part.y += speed
 					break;
 			}
+			if (part.x > canvas.width+partLength/2) {
+				part.x = 0-partLength/2
+			} else if (part.x < 0-partLength/2) {
+				part.x = canvas.width +partLength/2
+			}
+			if (part.y > canvas.height+partLength/2) {
+				part.y = 0-partLength/2
+			} else if (part.y < 0-partLength/2) {
+				part.y = canvas.height +partLength/2
+			}
 		}
 
 	}
@@ -410,11 +427,11 @@ const game = function () {
 		moveSnake();
 		let snakeX = snake[0].x;
 		let snakeY = snake[0].y;
-		let outOfWidth = snakeX >= canvas.width || snakeX < 0;
-		let outOfHeight = snakeY >= canvas.height || snakeY < 0;
+		// let outOfWidth = snakeX >= canvas.width || snakeX < 0;
+		// let outOfHeight = snakeY >= canvas.height || snakeY < 0;
 		let isSnakeEatingItself = snake.filter(part => part.x === snakeX && part.y === snakeY).length >= 2;
 		let isBarrierTouched = barriers.some(barrier => isInsideElement({x: snakeX, y: snakeY}, barrier))
-		return outOfHeight || outOfWidth || isSnakeEatingItself || isBarrierTouched;
+		return isSnakeEatingItself || isBarrierTouched;
 	}
 
 	function run() {
