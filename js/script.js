@@ -14,7 +14,7 @@ const game = function () {
 	let loaded_images = 0
 	let currentShark
 	let barriers
-	let barriersMax = 2
+	let barriersMax = 3
 	const images = {
 		head: {src: '/img/head.png', object: null},
 		bubble: {src: '/img/Bubble.png', object: null, items: []},
@@ -27,6 +27,13 @@ const game = function () {
 		fish3: {src: '/img/fishes/fish3.png', object: null},
 		fish4: {src: '/img/fishes/fish4.png', object: null},
 		fish5: {src: '/img/fishes/fish5.png', object: null},
+		whirpool1: {src: '/img/whirlpool/whirlpoo_01.png', object: null},
+		whirpool2: {src: '/img/whirlpool/whirlpoo_02.png', object: null},
+		whirpool3: {src: '/img/whirlpool/whirlpoo_03.png', object: null},
+		whirpool4: {src: '/img/whirlpool/whirlpoo_04.png', object: null},
+		whirpool5: {src: '/img/whirlpool/whirlpoo_05.png', object: null},
+		whirpool6: {src: '/img/whirlpool/whirlpoo_06.png', object: null},
+
 		hedgehog: {src: '/img/Hedgehog.png', object: null},
 	}
 
@@ -113,11 +120,11 @@ const game = function () {
 		currentShark = currentShark ? currentShark : images.shark_left
 		const {width, height}=getImgDimensions(currentShark)
 		let x = currentShark.position.x
-		if (x === null || x < (0 - width) || x > canvas.width) {
+		if (x === null || x < (0 - width-1) || x > canvas.width) {
 			let type = generateRandomBetween(0, 1)
 			currentShark = type ? images.shark_left : images.shark_right
 			currentShark.position.y = generateRandomBetween(0, canvas.height - height);
-			currentShark.position.x = currentShark.src === images.shark_left.src ? canvas.width : 0
+			currentShark.position.x = currentShark.src === images.shark_left.src ? canvas.width : 0-width
 		} else {
 			currentShark.position.x = currentShark.src === images.shark_left.src ?
 				currentShark.position.x - 0.7 * speed : currentShark.position.x + 0.7 * speed
@@ -168,6 +175,18 @@ const game = function () {
 	function drawBarriers() {
 		if (!barriers.length) generateBarriers();
 		for (let barrier of barriers) {
+			if(barrier.type==='hedgehog'){
+				barrier.object=images.hedgehog.object
+			}else if(!barrier.object){
+				barrier.object=images.whirpool1.object;
+			}else{
+				if(barrier.countdown===15){
+					let frame = barrier.object.src[barrier.object.src.length-5]
+					barrier.object = frame==6?images.whirpool1.object:images['whirpool'+(parseInt(frame)+1)].object
+				}
+				barrier.countdown--
+				barrier.countdown=barrier.countdown===0?15:barrier.countdown
+			}
 			ctx.drawImage(barrier.object, barrier.x, barrier.y, barrier.width, barrier.width);
 		}
 
@@ -217,8 +236,7 @@ const game = function () {
 					distance: generateRandomBetween(partLength*3, partLength*6),
 					speed: generateRandomBetween(1, 6)/10
 				}
-			} while (snake.some(part => isInsideElement({x: fruitX, y: fruitY}, part)) ||
-			barriers.some(barrier => isInsideElement({x: fruitX, y: fruitY}, barrier)))
+			} while (snake.some(part => isInsideElement({x: fruitX, y: fruitY}, part)))
 			fruits.push({x: fruitX, y: fruitY, type, path})
 		}
 	}
@@ -233,13 +251,16 @@ const game = function () {
 		for (let i = 0; i < barriersMax; i++) {//create new fruits if there is less than fruitsmax of them
 			let barrierX
 			let barrierY
-			// let type
-			do {//define if created fruit is inside of snake
-				barrierX = Math.round(generateRandomBetween(0, (canvas.width - partLength * 4)) / partLength) * partLength
-				barrierY = Math.round(generateRandomBetween(0, (canvas.height - partLength * 4)) / partLength) * partLength
-				// type = Math.floor(Math.random() * (5 - 1) + 1)
-			} while (barriers.some(barrier => isInsideElement({x: barrierX, y: barrierY}, barrier)))
-			barriers.push({x: barrierX, y: barrierY, object: images.hedgehog.object, width: partLength * 4})
+			let type
+			let width
+			do {
+				type = (i+1)===barriersMax?'whirpool':'hedgehog'
+				width = type==="whirpool"?partLength * 7:partLength*4
+				barrierX = Math.round(generateRandomBetween(0, (canvas.width - width)) / partLength) * partLength
+				barrierY = Math.round(generateRandomBetween(0,
+						(canvas.height - (type==="whirpool"?(canvas.height/3+width):width))) / partLength) * partLength
+			} while (barriers.some(barrier => isInsideElement( barrier,{x: barrierX, y: barrierY,width})||isInsideElement( {x: barrierX, y: barrierY,width},barrier)))
+			barriers.push({x: barrierX, y: barrierY, type, width,countdown:15})
 		}
 	}
 
