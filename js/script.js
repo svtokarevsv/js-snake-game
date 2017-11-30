@@ -285,7 +285,7 @@ const game = function () {
 		}
 		if (!canvas.getContext) return alert("your browser is not supported,sorry");
 		ctx = canvas.getContext('2d');
-		for (let i = 0; i < 13; i++) {
+		for (let i = 0; i < 4; i++) {
 			snake.unshift({x: i * partLength, y: 0, direction});
 		}
 		gameLoop = setInterval(draw, frameRate);
