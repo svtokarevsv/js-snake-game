@@ -367,10 +367,10 @@ const game = function () {
 				case 'play':
 					ev.preventDefault()
 					if (!gameLoop) {
-						ev.target.src = '../img/pause.png'
+						ev.target.src = './img/pause.png'
 						return gameLoop = setInterval(draw, frameRate);
 					}
-					ev.target.src = '../img/play.png'
+					ev.target.src = './img/play.png'
 					clearInterval(gameLoop);
 					gameLoop = null;
 					break;
