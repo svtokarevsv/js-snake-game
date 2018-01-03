@@ -1,6 +1,6 @@
 const game = function () {
 	const canvas = document.getElementById('gameboard')
-	const initialSnakeLength = 19
+	const initialSnakeLength = 4
 	let ctx
 	let partLength = 12
 	let frameRate = 10
