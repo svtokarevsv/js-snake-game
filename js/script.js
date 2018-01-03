@@ -1,5 +1,6 @@
 const game = function () {
 	const canvas = document.getElementById('gameboard')
+	const initialSnakeLength = 19
 	let ctx
 	let partLength = 12
 	let frameRate = 10
@@ -59,38 +60,38 @@ const game = function () {
 		for (let i = snake.length - 1; i >= 0; i--) {
 			let part = snake[i]
 			if (part.x === snake[0].x && part.y === snake[0].y) {
-				drawRotated(images.head.object, part.x - partLength / 4, part.y - partLength / 4, part.direction,partLength*1.5)
+				drawRotated(images.head.object, part.x - partLength / 4, part.y - partLength / 4, part.direction, partLength * 1.5)
 			} else {
-				drawRotated(images.snakeBody.object, part.x , part.y , part.direction,partLength,16)
+				drawRotated(images.snakeBody.object, part.x, part.y, part.direction, partLength, 16)
 			}
 		}
 	}
 
-	function drawRotated(imgObj, x, y, degree, partL,partH) {
-		let bodyX=0
-		let bodyY=0
+	function drawRotated(imgObj, x, y, degree, partL, partH) {
+		let bodyX = 0
+		let bodyY = 0
 		switch (degree) {
 			case 'right':
 				degree = 90
-				bodyX=0
-				bodyY=-partL
+				bodyX = 0
+				bodyY = -partL
 				break
 			case 'left':
 				degree = 270
-				bodyX=-partL
-				bodyY=0
+				bodyX = -partL
+				bodyY = 0
 				break
 			case 'up':
 				degree = 0
 				break
 			case 'down':
 				degree = 180
-				bodyX=-partL
-				bodyY=-partL
+				bodyX = -partL
+				bodyY = -partL
 				break
 		}
-		if(!partH){
-			partH=partL
+		if (!partH) {
+			partH = partL
 		}
 		ctx.save();
 		ctx.translate(x, y);
@@ -147,13 +148,13 @@ const game = function () {
 	}
 
 	function drawReef() {
-		const {width, height}=getImgDimensions(images.reef)
+		const {width, height} = getImgDimensions(images.reef)
 		ctx.drawImage(images.reef.object, canvas.width - width, canvas.height - height, width, height);
 	}
 
 	function drawShark() {
 		currentShark = currentShark ? currentShark : images.shark_left
-		const {width, height}=getImgDimensions(currentShark)
+		const {width, height} = getImgDimensions(currentShark)
 		let x = currentShark.position.x
 		if (x === null || x < (0 - width - 1) || x > canvas.width) {
 			let type = generateRandomBetween(0, 1)
@@ -277,9 +278,12 @@ const game = function () {
 	}
 
 	function isInsideElement(newObj, existingObj) {
-		let width = existingObj.width || partLength
-		return newObj.x >= existingObj.x && newObj.x < (existingObj.x + width) &&
-			newObj.y >= existingObj.y && newObj.y < (existingObj.y + width)
+		let existing_obj_width = existingObj.width || partLength
+		let new_obj_width = newObj.width || partLength
+		return newObj.x + new_obj_width > existingObj.x &&
+			newObj.x < (existingObj.x + existing_obj_width) &&
+			newObj.y + new_obj_width > existingObj.y &&
+			newObj.y < (existingObj.y + existing_obj_width)
 	}
 
 	function generateBarriers() {
@@ -293,12 +297,12 @@ const game = function () {
 				width = type === "whirpool" ? partLength * 7 : partLength * 4
 				barrierX = Math.round(generateRandomBetween(0, (canvas.width - width)) / partLength) * partLength
 				barrierY = Math.round(generateRandomBetween(0,
-							(canvas.height - (type === "whirpool" ? (canvas.height / 3 + width) : width))) / partLength) * partLength
-			} while (barriers.some(barrier => isInsideElement(barrier, {
+					(canvas.height - (type === "whirpool" ? (canvas.height / 3 + width) : width))) / partLength) * partLength
+			} while (barriers.some((barrier) => isInsideElement(barrier, {
 				x: barrierX,
 				y: barrierY,
 				width
-			}) || isInsideElement({x: barrierX, y: barrierY, width}, barrier)))
+			})))
 			barriers.push({x: barrierX, y: barrierY, type, width, countdown: 15})
 		}
 	}
@@ -320,7 +324,7 @@ const game = function () {
 		}
 		if (!canvas.getContext) return alert("your browser is not supported,sorry");
 		ctx = canvas.getContext('2d');
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < initialSnakeLength; i++) {
 			snake.unshift({x: i * partLength, y: 0, direction});
 		}
 		gameLoop = setInterval(draw, frameRate);
@@ -336,8 +340,9 @@ const game = function () {
 			let id = ev.target.id;
 			manageKeys(id, ev)
 		})
+
 		function manageKeys(key, ev) {
-			if (disabled)return;
+			if (disabled) return;
 			switch (key) {
 				case 37:
 				case 65:
@@ -379,7 +384,7 @@ const game = function () {
 					break;
 			}
 			disabled = true;
-			setTimeout(() => disabled = false, frameRate * 6)
+			setTimeout(() => disabled = false, frameRate * 9)
 		}
 	}
 
@@ -462,9 +467,14 @@ const game = function () {
 		moveSnake();
 		let snakeX = snake[0].x;
 		let snakeY = snake[0].y;
-		// let outOfWidth = snakeX >= canvas.width || snakeX < 0;
-		// let outOfHeight = snakeY >= canvas.height || snakeY < 0;
-		let isSnakeEatingItself = snake.filter(part => part.x === snakeX && part.y === snakeY).length >= 2;
+		let isSnakeEatingItself = snake.some((part) => {
+				"use strict"
+				if (part === snake[0] || part === snake[1] || part === snake[2]) {
+					return false
+				}
+				return isInsideElement({x: snakeX, y: snakeY}, part)
+			}
+		);
 		let isBarrierTouched = barriers.some(barrier => isInsideElement({x: snakeX, y: snakeY}, barrier))
 		return isSnakeEatingItself || isBarrierTouched;
 	}
