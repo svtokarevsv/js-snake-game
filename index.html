@@ -6,29 +6,66 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="img/icon.png" type="image/x-icon"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400|Wendy+One" rel="stylesheet">
 </head>
 <body>
-<canvas id="gameboard">
-    if you see this then your browser doesn't support canvas and this game unfortunately
-</canvas>
 <div class="game-info">
     <div class="controls">
         <div class="upline">
-            <div class="control" ><img src="img/upKey.png" alt="" id="up"></div>
+            <div class="control up" id="up"></div>
         </div>
         <div class="middleline">
-            <div class="control" ><img src="img/leftKey.png" alt="" id="left"></div>
-            <div class="control" ><img src="img/pause.png" alt="" id="play"></div>
-            <div class="control" ><img src="img/rightKey.png" alt="" id="right"></div>
+            <div class="control left" id="left"></div>
+            <div class="control pause" id="play"></div>
+            <div class="control right" id="right"></div>
         </div>
         <div class="downline">
-            <div class="control" ><img src="img/downKey.png" alt="" id="down"></div>
+            <div class="control down" id="down"></div>
         </div>
     </div>
-    <h2>Your score <span id="score">0</span></h2>
-    <p>You may use keyboard &larr;&rarr;&uarr;&darr; or a-w-s-d to control the snake</p> 
-    <p>and space to pause the game</p>
+    <div class="help-info">
+        <p>You may use keyboard <span class="yellow">&larr;&rarr;&uarr;&darr;</span> or 
+            <span class="yellow">a-w-s-d</span> to control the snake</p>
+        <p>and <span class="yellow">space</span> to pause the game</p>
+    </div>
 </div>
+
+<main class="gameboard">
+    <img class="gameboard__playbtn" src="img/new_design/play_btn.png" alt="play button" style="display:none">
+    <img class="gameboard__logo" src="img/new_design/Logo.png" alt="pelamys logo">
+    <img class="gameboard__bg" src="img/new_design/Plashka.png" alt="gamepad img">
+    <div class="score-info">
+        <div class="score-info__block">
+            <img src="img/new_design/fish-icon.png" alt="your score" title="Your score">
+            <span class="score-info__text" id="score">0</span>
+        </div>
+        <div class="score-info__block">
+            <img src="img/new_design/prize-icon.png" alt="your max score today" title="Your max score today">
+            <span class="score-info__text" id="max_score">0</span>
+        </div>
+    </div>
+    <canvas class="gameboard__game" id="gameboard__game">
+        if you see this then your browser doesn't support canvas and this game unfortunately
+    </canvas>
+</main>
+<div class="top-score">
+    <header class="top-score__header">
+        <input class="top-score__input" type="text" placeholder="Enter your name..." id="username">
+    </header>
+    <div class="top-score__list-wrapper">
+        <h3 class="top-score__heading">
+            Top players
+        </h3>
+        <ol id="top-score__list">
+
+        </ol>
+    </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/5.0.1/firebase-app.js"></script>
+
+<!-- Add additional services you want to use -->
+<!--<script src="https://www.gstatic.com/firebasejs/5.0.1/firebase-auth.js"></script>-->
+<script src="https://www.gstatic.com/firebasejs/5.0.1/firebase-database.js"></script>
 <script src="js/script.js"></script>
 </body>
 </html>

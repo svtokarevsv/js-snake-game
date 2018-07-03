@@ -1,5 +1,6 @@
 const game = function () {
-	const canvas = document.getElementById('gameboard')
+	const canvas = document.getElementById('gameboard__game')
+	let playbtn = document.querySelector('.gameboard__playbtn')
 	const initialSnakeLength = 4
 	let ctx
 	let partLength = 12
@@ -10,6 +11,7 @@ const game = function () {
 	let snake
 	let gameLoop
 	let score
+	let max_score=0
 	let fruits
 	let fruitMax = 6
 	let loaded_images = 0
@@ -54,8 +56,6 @@ const game = function () {
 		}
 	}
 
-	//12px
-
 	function drawSnake() {
 		for (let i = snake.length - 1; i >= 0; i--) {
 			let part = snake[i]
@@ -98,24 +98,6 @@ const game = function () {
 		ctx.rotate(degree * Math.PI / 180);
 		ctx.drawImage(imgObj, bodyX, bodyY, partL, partH);
 		ctx.restore();
-	}
-
-	function drawElem(x, y, name) {
-		switch (name) {
-			case "snake":
-				ctx.fillStyle = "#4666ff";
-				ctx.strokeStyle = "#1fff57";
-				break;
-			case "fruit":
-				ctx.fillStyle = "#fff530";
-				ctx.strokeStyle = "#4666ff";
-				break;
-		}
-		ctx.beginPath();
-		ctx.rect(x, y, partLength, partLength);
-		ctx.stroke();
-		ctx.fill();
-		ctx.closePath();
 	}
 
 	function drawFruits() {
@@ -316,29 +298,89 @@ const game = function () {
 		previousDirection = 'right'
 		canvas.width = canvas.height = partLength * 40;
 		changeScore(score);
-		if (canvas.height > window.innerHeight) {
-			canvas.width = canvas.height = Math.ceil(window.innerHeight / partLength) * (partLength - 2);
+		let wrapper = document.querySelector('.gameboard')
+		if (canvas.height > wrapper.offsetHeight) {
+			canvas.width = canvas.height = Math.ceil(wrapper.offsetHeight / partLength) * (partLength - 2);
 		}
-		if (canvas.width > window.innerWidth * 0.9) {
-			canvas.width = canvas.height = Math.ceil(window.innerWidth / partLength) * (partLength - 2);
+		if (canvas.width > wrapper.offsetWidth * 0.86) {
+			canvas.width = canvas.height = Math.ceil(wrapper.offsetWidth * 0.96 / partLength) * (partLength - 2);
 		}
+		if(canvas.width<250)return alert('Too small screen, sorry')
 		if (!canvas.getContext) return alert("your browser is not supported,sorry");
 		ctx = canvas.getContext('2d');
 		for (let i = 0; i < initialSnakeLength; i++) {
 			snake.unshift({x: i * partLength, y: 0, direction});
 		}
 		gameLoop = setInterval(draw, frameRate);
+		toggleGameStatus()
+	}
+
+	function initFireBase() {
+		var config = {
+			apiKey: "AIzaSyDiQBU2j2kw8NCI-cPRM2wDfnIME-0jN7k",
+			authDomain: "web-programmer-xyz.firebaseapp.com",
+			databaseURL: "https://web-programmer-xyz.firebaseio.com",
+			projectId: "web-programmer-xyz",
+			storageBucket: "",
+			messagingSenderId: "523550039566"
+		};
+		firebase.initializeApp(config);
+		getTopScores()
+		// firebase.database().ref().child('pelamys/scores').push().set({score:4423,name:'bob'});
+	}
+
+	function getTopScores() {
+		firebase.database().ref('pelamys/scores').orderByChild('score').limitToLast(10).once('value', updateTopScores)
+	}
+	function addNewScore() {
+		score>max_score?document.getElementById('max_score').innerText = max_score=score:null
+		let name = document.getElementById('username').value|| 'unknown'
+		firebase.database().ref().child('pelamys/scores').push().set({
+			score,
+			name
+		},getTopScores());
+	}
+	function updateTopScores(data) {
+		let total =data.numChildren()
+		let score_list = document.getElementById('top-score__list')
+		let html = ''
+		let i = 0
+		data.forEach((item) => {
+			let player = item.val()
+			html = `<li class="top-score__item ${i>=total-3?'yellow':''}">
+						<p>
+							<span>${player.name}</span>
+							<span>${player.score}</span>
+						</p>
+					</li>`+html
+			i++
+		})
+		score_list.innerHTML=html
 	}
 
 	function initControls() {
 		let disabled = false;
 		window.addEventListener('keydown', function (ev) {
 			let key = ev.keyCode;
-			manageKeys(key, ev)
+			let elem = ev.target
+			let id = elem.id
+			switch (true) {
+				case id!=='username':
+					manageKeys(key, ev)
+					break
+			}
 		})
 		window.addEventListener('click', function (ev) {
-			let id = ev.target.id;
-			manageKeys(id, ev)
+			let elem = ev.target
+			let id = elem.id
+			switch (true) {
+				case elem.classList.contains('gameboard__playbtn'):
+					toggleGameStatus()
+					break
+				case id!=='username':
+					manageKeys(id, ev)
+					break
+			}
 		})
 
 		function manageKeys(key, ev) {
@@ -371,13 +413,7 @@ const game = function () {
 				case 32:
 				case 'play':
 					ev.preventDefault()
-					if (!gameLoop) {
-						ev.target.src = './img/pause.png'
-						return gameLoop = setInterval(draw, frameRate);
-					}
-					ev.target.src = './img/play.png'
-					clearInterval(gameLoop);
-					gameLoop = null;
+					toggleGameStatus()
 					break;
 				default:
 					return;
@@ -388,9 +424,23 @@ const game = function () {
 		}
 	}
 
+	function togglePlayButton() {
+		playbtn.style.display = playbtn.style.display === 'none' ? 'block' : 'none';
+	}
+
+	function toggleGameStatus() {
+		if (!gameLoop) {
+			togglePlayButton()
+			return gameLoop = setInterval(draw, frameRate);
+		}
+		togglePlayButton()
+		clearInterval(gameLoop);
+		gameLoop = null;
+	}
 
 	function endGame() {
 		clearInterval(gameLoop)
+		addNewScore()
 		gameLoop = null;
 		init();
 	}
@@ -480,6 +530,7 @@ const game = function () {
 	}
 
 	function run() {
+		initFireBase()
 		loadImages(init);
 		initControls();
 	}
